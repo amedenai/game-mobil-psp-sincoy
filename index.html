@@ -1,302 +1,271 @@
-here<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="id">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
-<title>MOBIL SIMULATOR PSP - FULL 3D - SINCOY</title>
+<title>BUS SIMULATOR PSP - JADILAH PENGEMUDI BUS TERBAIK - SINCOY</title>
 <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@700;800&display=swap" rel="stylesheet">
 <style>
 *{margin:0;padding:0;box-sizing:border-box;user-select:none;-webkit-tap-highlight-color:transparent}
 body{margin:0;background:#000;font-family:'Fredoka',system-ui;overflow:hidden;height:100dvh}
 #game{position:fixed;inset:0}
-#uiTop{position:absolute;top:0;left:0;right:0;height:50px;background:linear-gradient(#111,#000);border-bottom:3px solid #222;display:flex;gap:6px;padding:8px;z-index:10}
-.chip{flex:1;background:#111;border:2px solid #333;border-radius:100px;padding:6px;text-align:center;font-size:10px;color:#fff;display:flex;align-items:center;justify-content:center;gap:4px}
-#steeringWrap{position:absolute;bottom:10px;left:10px;width:140px;height:140px;z-index:10;pointer-events:auto}
-#steeringWheel{width:100%;height:100%;border-radius:50%;background:radial-gradient(circle at 30% 30%,#444,#111);border:5px solid #000;box-shadow:0 6px 0 #000, inset 0 2px 10px rgba(255,255,255,0.2);position:relative;touch-action:none}
-#steeringWheel::before{content:'';position:absolute;inset:18%;border-radius:50%;background:#000;border:3px solid #222}
-#steeringWheel::after{content:'';position:absolute;top:50%;left:50%;width:80%;height:8px;background:#111;border:2px solid #333;border-radius:4px;transform:translate(-50%,-50%)}
-#pedals{position:absolute;bottom:10px;right:10px;display:flex;gap:12px;z-index:10;pointer-events:auto}
-.pedal{width:80px;height:100px;background:linear-gradient(#222,#000);border:4px solid #000;border-radius:16px;display:flex;flex-direction:column;align-items:center;justify-content:center;color:#fff;font-size:11px;font-weight:800;box-shadow:0 6px 0 #000}
-.pedal:active{transform:translateY(4px);box-shadow:0 2px 0 #000}
-.pedal.gas{background:linear-gradient(#2a2,#000);border-color:#0a0}
-.pedal.rem{background:linear-gradient(#a22,#000);border-color:#a00}
-#lightInfo{position:absolute;top:60px;left:50%;transform:translateX(-50%);background:#000;border:3px solid #fff;border-radius:12px;padding:6px 14px;color:#fff;font-size:12px;z-index:10;display:none}
-#menu{position:fixed;inset:0;z-index:100;background:radial-gradient(ellipse at 50% 0%,#1a2a4a,#000);display:flex;align-items:center;justify-content:center;padding:16px}
-.card{background:#fff;color:#000;border:5px solid #000;border-radius:20px;padding:20px;width:100%;max-width:420px;text-align:center;box-shadow:14px 14px 0 #000}
+#top{position:absolute;top:0;left:0;right:0;height:52px;background:linear-gradient(180deg,rgba(0,0,0,0.85),rgba(0,0,0,0.5));display:flex;gap:8px;padding:10px;z-index:20}
+.pill{flex:1;background:rgba(255,255,255,0.1);border:1px solid rgba(255,255,255,0.2);border-radius:100px;padding:8px;text-align:center;color:#fff;font-size:11px;backdrop-filter:blur(8px)}
+.pill.green{border-color:#22c55e;background:rgba(34,197,94,0.25)}
+.pill.red{border-color:#ef4444;background:rgba(239,68,68,0.25);animation:blink 0.8s infinite}
+@keyframes blink{50%{opacity:0.6}}
+#cockpit{position:absolute;bottom:0;left:0;right:0;height:42%;background:linear-gradient(180deg,#1a1a1a,#0a0a0a);border-top:4px solid #000;z-index:15;display:flex;flex-direction:column;pointer-events:none}
+#dashTop{flex:1;display:flex;padding:8px 10px;gap:8px;align-items:center}
+#steerReal{width:170px;height:170px;border-radius:50%;background:radial-gradient(circle at 30% 30%,#3a3a3a,#111);border:6px solid #000;box-shadow:0 8px 0 #000, inset 0 2px 12px rgba(255,255,255,0.15);position:relative;pointer-events:auto;touch-action:none}
+#steerReal::before{content:'';position:absolute;inset:22%;border-radius:50%;background:#000;border:3px solid #222}
+#steerCenter{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);width:42px;height:42px;background:linear-gradient(#444,#111);border:3px solid #000;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:10px;color:#fff}
+#meters{display:flex;gap:10px;flex:1;justify-content:center}
+.meter{width:70px;height:70px;border-radius:50%;background:radial-gradient(circle at 30% 30%,#222,#000);border:3px solid #000;position:relative;display:flex;align-items:center;justify-content:center;box-shadow:inset 0 2px 8px #000}
+.meter::after{content:'';position:absolute;width:2px;height:30px;background:#ef4444;bottom:50%;left:50%;transform-origin:bottom;transform:translateX(-50%) rotate(-60deg);border-radius:2px}
+.meterLabel{position:absolute;bottom:8px;font-size:7px;color:#888}
+#controls{position:absolute;bottom:18px;right:16px;display:flex;gap:14px;z-index:20;pointer-events:auto}
+.pedal{width:92px;height:112px;border-radius:20px;border:4px solid #000;display:flex;flex-direction:column;align-items:center;justify-content:center;color:#fff;font-weight:800;font-size:12px;box-shadow:0 8px 0 #000}
+.pedal:active{transform:translateY(6px);box-shadow:0 2px 0 #000}
+.pedal.gas{background:linear-gradient(180deg,#22c55e,#14532d)}
+.pedal.brake{background:linear-gradient(180deg,#ef4444,#7f1d1d)}
+#viewToggle{position:absolute;top:64px;right:10px;background:rgba(0,0,0,0.7);border:2px solid rgba(255,255,255,0.2);border-radius:100px;padding:8px 14px;color:#fff;font-size:11px;z-index:20;pointer-events:auto}
+#alert{position:absolute;top:64px;left:50%;transform:translateX(-50%);background:#000;border:3px solid #fff;border-radius:14px;padding:10px 18px;color:#fff;font-size:12px;z-index:20;display:none;text-align:center}
+#miniBus{position:absolute;top:64px;left:10px;width:110px;height:62px;background:rgba(0,0,0,0.6);border:2px solid rgba(255,255,255,0.2);border-radius:12px;z-index:20;overflow:hidden}
+#menu{position:fixed;inset:0;z-index:100;background:radial-gradient(ellipse at 50% -10%,#1e3a8a,#020617);display:flex;align-items:center;justify-content:center;padding:16px}
+.card{background:#fff;color:#000;border:5px solid #000;border-radius:22px;padding:20px;width:100%;max-width:440px;text-align:center;box-shadow:16px 16px 0 #000}
 </style>
-<script type="importmap">
-{
-"imports":{
-"three":"https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js",
-"three/addons/":"https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/"
-}
-}
-</script>
+<script type="importmap">{"imports":{"three":"https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js"}}</script>
 </head>
 <body>
 <div id="game"></div>
-<div id="uiTop">
-<div class="chip">🏎️ <span id="speed">0</span> KM/H</div>
-<div class="chip" id="lightChip">🚦 HIJAU</div>
-<div class="chip">💰 Rp <span id="money">0</span></div>
-<div class="chip" id="viewBtn">👁️ DALAM</div>
+<div id="top">
+<div class="pill" id="speedPill">🚌 <span id="speed">0</span> KM/H</div>
+<div class="pill green" id="lightPill">🚦 HIJAU</div>
+<div class="pill">💰 Rp <span id="money">0</span></div>
+<div class="pill">👥 <span id="pax">0/40</span></div>
 </div>
-<div id="lightInfo">🚦 LAMPU MERAH - BERHENTI!</div>
-<div id="steeringWrap"><div id="steeringWheel"></div><div style="text-align:center;font-size:9px;color:#fff;margin-top:4px">SETIR REAL - PUTAR!</div></div>
-<div id="pedals">
-<div class="pedal rem" id="brake">🛑<br>REM</div>
-<div class="pedal gas" id="gas">⛽<br>GAS</div>
+<div id="alert">🚦 LAMPU MERAH - BERHENTI BUS!</div>
+<div id="viewToggle">👁️ LUAR</div>
+<div id="miniBus"><canvas id="miniCanvas" style="width:100%;height:100%"></canvas></div>
+
+<div id="cockpit">
+<div id="dashTop">
+<div id="steerReal"><div id="steerCenter">BUS</div></div>
+<div id="meters">
+<div class="meter"><div class="meterLabel">KM/H</div><span id="mSpeed" style="font-size:10px;color:#fff;margin-top:10px">0</span></div>
+<div class="meter"><div class="meterLabel">RPM x1000</div><span id="mRpm" style="font-size:10px;color:#fff;margin-top:10px">0.8</span></div>
+<div class="meter" style="width:90px"><div class="meterLabel">FUEL</div><span style="font-size:8px;color:#0f0">F ████ E</span></div>
+</div>
+<div style="flex:1;display:flex;flex-direction:column;gap:6px;align-items:flex-end">
+<div style="background:#000;border:2px solid #333;border-radius:8px;padding:6px 10px;color:#0f0;font-family:monospace;font-size:10px">D • N • R<br>TIME 01:23</div>
+<div style="display:flex;gap:6px"><div style="width:12px;height:12px;background:#ef4444;border-radius:50%;box-shadow:0 0 6px #ef4444"></div><div style="width:12px;height:12px;background:#22c55e;border-radius:50%;box-shadow:0 0 6px #22c55e"></div></div>
+</div>
+</div>
+</div>
+
+<div id="controls">
+<div class="pedal brake" id="brakeBtn">🛑<br>REM</div>
+<div class="pedal gas" id="gasBtn">⛽<br>GAS</div>
 </div>
 
 <div id="menu">
 <div class="card">
-<div style="font-size:40px">🏎️🚦🦄</div>
-<h2>PSP MOBIL SIMULATOR<br><span style="background:#b71c1c;color:#fff;padding:2px 8px;border-radius:8px;font-size:12px">FULL 3D - LENGKAP</span></h2>
-<div style="text-align:left;font-size:11px;margin:10px 0;line-height:1.6">
-✅ <b>Full 3D HD:</b> Jalan aspal, gedung, pagar besi, trotoar, bayangan real!<br>
-✅ <b>Lampu merah:</b> 3 perempatan - merah kuning hijau - kalau nerobos didenda!<br>
-✅ <b>Orang nyebrang:</b> pejalan kaki di zebra cross - berhenti kalau merah!<br>
-✅ <b>Setir mobil real:</b> setir bulat bisa diputar 900° + setir di dalam mobil muter juga!<br>
-✅ <b>Kontrol PSP:</b> setir kiri, gas kanan, rem, ganti view dalam/luar
+<div style="font-size:42px">🚌🦄✨</div>
+<h2>BUS SIMULATOR PSP<br><span style="background:#000;color:#fff;padding:3px 12px;border-radius:100px;font-size:12px">JADILAH PENGEMUDI BUS TERBAIK</span></h2>
+<div style="text-align:left;font-size:11px;margin:12px 0;line-height:1.7;background:#f1f5f9;border-radius:12px;padding:10px">
+✅ <b>Persis foto Tuan:</b> Bus merah putih besar + kaca hitam + interior dashboard bus real + setir bus + spion!<br>
+✅ <b>Lampu merah:</b> Perempatan + denda kalau nerobos!<br>
+✅ <b>Orang:</b> Penumpang naik turun di halte + pejalan kaki nyebrang!<br>
+✅ <b>Pagar:</b> Guardrail besi sepanjang jalan + trotoar + gedung terminal!<br>
+✅ <b>Setir real:</b> Setir bus 900° bisa diputar + dashboard jarum gerak!
 </div>
-<button style="width:100%;padding:14px;background:#ffeb3b;border:4px solid #000;border-radius:100px;font-weight:800;box-shadow:0 5px 0 #000" id="startBtn">🏎️ START MESIN SINCOY!</button>
+<button style="width:100%;padding:14px;background:#ef4444;color:#fff;border:4px solid #000;border-radius:100px;font-weight:800;box-shadow:0 5px 0 #000" id="startBtn">🚌 JADI SOPIR BUS TERBAIK!</button>
 </div>
 </div>
 
 <script type="module">
 import * as THREE from 'three';
-
-let scene,camera,renderer,car,carBody,wheels=[],steeringMesh,road,buildings=[],trafficLights=[],peoples=[],fences=[];
-let speed=0,steer=0,carAngle=0,viewInside=false,money=0;
-let lightState='green',lightTimer=0,canGo=true;
-let keys={gas:false,brake:false};
+let scene,camera,renderer,bus,busGroup,steerMesh,wheels=[],trafficLights=[],people=[],road,buildings=[],fences=[];
+let speed=0,steerVal=0,angle=0,inside=true,money=0,pax=0,canGo=true;
+let gas=false,brake=false,steerAngle=0,steerDragging=false,startAng=0;
 
 function init(){
 scene=new THREE.Scene();
-scene.background=new THREE.Color(0x87CEEB);
-scene.fog=new THREE.Fog(0x87CEEB, 80, 300);
-
-camera=new THREE.PerspectiveCamera(70, window.innerWidth/window.innerHeight, 0.1, 1000);
-camera.position.set(0,8,18);
-
+scene.background=new THREE.Color(0x87ceeb);
+scene.fog=new THREE.Fog(0x87ceeb,100,380);
+camera=new THREE.PerspectiveCamera(60,innerWidth/innerHeight,0.1,1000);
+camera.position.set(-12,5,3);
 renderer=new THREE.WebGLRenderer({antialias:true});
-renderer.setSize(window.innerWidth, window.innerHeight);
+renderer.setSize(innerWidth,innerHeight);
 renderer.shadowMap.enabled=true;
 renderer.shadowMap.type=THREE.PCFSoftShadowMap;
 document.getElementById('game').appendChild(renderer.domElement);
 
-let light=new THREE.DirectionalLight(0xffffff,1.2);
-light.position.set(50,80,30);
-light.castShadow=true;
-light.shadow.mapSize.set(2048,2048);
-scene.add(light);
-scene.add(new THREE.AmbientLight(0xffffff,0.5));
+let sun=new THREE.DirectionalLight(0xffffff,1.4);sun.position.set(60,90,30);sun.castShadow=true;sun.shadow.mapSize.set(2048,2048);scene.add(sun);
+scene.add(new THREE.AmbientLight(0xffffff,0.6));
 
-// Road
-let roadGeo=new THREE.PlaneGeometry(400,20);
-let roadMat=new THREE.MeshStandardMaterial({color:0x2a2a2a,roughness:0.9});
-road=new THREE.Mesh(roadGeo,roadMat);
-road.rotation.x=-Math.PI/2;
-road.receiveShadow=true;
-scene.add(road);
-// garis tengah
-for(let i=-200;i<200;i+=10){
-let line=new THREE.Mesh(new THREE.PlaneGeometry(3,0.5), new THREE.MeshStandardMaterial({color:0xffffff}));
-line.rotation.x=-Math.PI/2;line.position.set(i,0.02,0);scene.add(line);
+// Road - aspal bus
+let roadMat=new THREE.MeshStandardMaterial({color:0x1e293b,roughness:0.9});
+road=new THREE.Mesh(new THREE.PlaneGeometry(800,18),roadMat);road.rotation.x=-Math.PI/2;road.receiveShadow=true;scene.add(road);
+for(let i=-400;i<400;i+=10){let line=new THREE.Mesh(new THREE.PlaneGeometry(5,0.5),new THREE.MeshStandardMaterial({color:0xffffff}));line.rotation.x=-Math.PI/2;line.position.set(i,0.02,0);scene.add(line);}
+// sidewalk + terminal
+let walkMat=new THREE.MeshStandardMaterial({color:0xcbd5e1});
+let leftWalk=new THREE.Mesh(new THREE.BoxGeometry(800,0.6,6),walkMat);leftWalk.position.set(0,0.3,12);scene.add(leftWalk);
+let rightWalk=leftWalk.clone();rightWalk.position.z=-12;scene.add(rightWalk);
+// pagar guardrail real
+for(let i=-400;i<400;i+=3){
+let post=new THREE.Mesh(new THREE.CylinderGeometry(0.1,0.1,1.6),new THREE.MeshStandardMaterial({color:0xffffff}));post.position.set(i,0.8,15.5);post.castShadow=true;scene.add(post);
+let post2=post.clone();post2.position.z=-15.5;scene.add(post2);
+if(i%6===0){
+let rail=new THREE.Mesh(new THREE.BoxGeometry(3,0.28,0.1),new THREE.MeshStandardMaterial({color:i%12===0?0xef4444:0xffffff}));rail.position.set(i,1.2,15.5);scene.add(rail);
+let rail2=rail.clone();rail2.position.z=-15.5;scene.add(rail2);
+let railLow=rail.clone();railLow.position.y=0.7;scene.add(railLow);
+let railLow2=rail2.clone();railLow2.position.y=0.7;scene.add(railLow2);
 }
-// trotoar
-let sideGeo=new THREE.PlaneGeometry(400,6);
-let sideMat=new THREE.MeshStandardMaterial({color:0x888888});
-let leftSide=new THREE.Mesh(sideGeo,sideMat);leftSide.rotation.x=-Math.PI/2;leftSide.position.set(0,0.01,10);scene.add(leftSide);
-let rightSide=leftSide.clone();rightSide.position.z=-10;scene.add(rightSide);
-
-// Pagar besi - kiri kanan
-for(let i=-200;i<200;i+=8){
-let fence=new THREE.Mesh(new THREE.BoxGeometry(0.3,2,0.2), new THREE.MeshStandardMaterial({color:0x555555}));
-fence.position.set(i,1,13);fence.castShadow=true;scene.add(fence);fences.push(fence);
-let fence2=fence.clone();fence2.position.z=-13;scene.add(fence2);
-let rail=new THREE.Mesh(new THREE.BoxGeometry(8,0.15,0.15), new THREE.MeshStandardMaterial({color:0x777777}));
-rail.position.set(i,1.5,13);scene.add(rail);
-let rail2=rail.clone();rail2.position.z=-13;scene.add(rail2);
 }
-
-// Gedung
-for(let i=-180;i<180;i+=18){
-let h=10+Math.random()*20;
-let b=new THREE.Mesh(new THREE.BoxGeometry(8,h,8), new THREE.MeshStandardMaterial({color:new THREE.Color().setHSL(Math.random()*0.1+0.1,0.3,0.5)}));
-b.position.set(i, h/2, 22+Math.random()*5);b.castShadow=true;scene.add(b);buildings.push(b);
-let b2=b.clone();b2.position.z=-22-Math.random()*5;scene.add(b2);
+// buildings terminal
+for(let i=-380;i<380;i+=30){
+let h=10+Math.random()*18;
+let b=new THREE.Mesh(new THREE.BoxGeometry(14,h,10),new THREE.MeshStandardMaterial({color:new THREE.Color().setHSL(0.1,0.2,0.7)}));b.position.set(i,h/2,30);b.castShadow=true;scene.add(b);
+let b2=b.clone();b2.position.z=-30;scene.add(b2);
+}
+// Halte bus
+for(let x of [-120,0,120]){
+let halte=new THREE.Group();
+let roof=new THREE.Mesh(new THREE.BoxGeometry(12,0.5,5),new THREE.MeshStandardMaterial({color:0x0ea5e9}));roof.position.set(x,3,12);halte.add(roof);
+let pole1=new THREE.Mesh(new THREE.CylinderGeometry(0.1,0.1,3),new THREE.MeshStandardMaterial({color:0x333333}));pole1.position.set(x-5,1.5,12);halte.add(pole1);
+let pole2=pole1.clone();pole2.position.x=x+5;halte.add(pole2);
+scene.add(halte);
 }
 
-// Lampu merah - 3 perempatan
-for(let x of [-60,0,60]){
-let pole=new THREE.Mesh(new THREE.CylinderGeometry(0.15,0.15,8), new THREE.MeshStandardMaterial({color:0x222222}));
-pole.position.set(x,4,-6);pole.castShadow=true;scene.add(pole);
-let box=new THREE.Mesh(new THREE.BoxGeometry(1.5,3,0.6), new THREE.MeshStandardMaterial({color:0x111111}));
-box.position.set(x,7,-6);scene.add(box);
-let red=new THREE.Mesh(new THREE.SphereGeometry(0.3), new THREE.MeshStandardMaterial({color:0x330000,emissive:0x000000}));red.position.set(x,8,-5.6);scene.add(red);
-let yellow=new THREE.Mesh(new THREE.SphereGeometry(0.3), new THREE.MeshStandardMaterial({color:0x333300,emissive:0x000000}));yellow.position.set(x,7,-5.6);scene.add(yellow);
-let green=new THREE.Mesh(new THREE.SphereGeometry(0.3), new THREE.MeshStandardMaterial({color:0x003300,emissive:0x00ff00}));green.position.set(x,6,-5.6);scene.add(green);
-trafficLights.push({x:x,red: red,yellow:yellow,green:green,state:'green',timer:0});
+// Traffic lights
+for(let x of [-80,0,80]){
+let pole=new THREE.Mesh(new THREE.CylinderGeometry(0.15,0.2,7),new THREE.MeshStandardMaterial({color:0x111111}));pole.position.set(x,3.5,-6);pole.castShadow=true;scene.add(pole);
+let housing=new THREE.Mesh(new THREE.BoxGeometry(1,2.8,0.8),new THREE.MeshStandardMaterial({color:0x0a0a0a}));housing.position.set(x,6.5,-2);scene.add(housing);
+let redMat=new THREE.MeshStandardMaterial({color:0x330000,emissive:0x000000,emissiveIntensity:3});
+let yMat=new THREE.MeshStandardMaterial({color:0x333300,emissive:0x000000,emissiveIntensity:3});
+let gMat=new THREE.MeshStandardMaterial({color:0x003300,emissive:0x00ff00,emissiveIntensity:3});
+let red=new THREE.Mesh(new THREE.SphereGeometry(0.32),redMat);red.position.set(x,7.6,-1.6);scene.add(red);
+let yel=new THREE.Mesh(new THREE.SphereGeometry(0.32),yMat);yel.position.set(x,6.5,-1.6);scene.add(yel);
+let gre=new THREE.Mesh(new THREE.SphereGeometry(0.32),gMat);gre.position.set(x,5.4,-1.6);scene.add(gre);
+trafficLights.push({x,redMat,yMat,gMat,state:'green',timer:0});
 }
 
-// Orang nyebrang
-for(let i=0;i<12;i++){
-let man=new THREE.Group();
-let body=new THREE.Mesh(new THREE.CapsuleGeometry(0.3,0.8,4,8), new THREE.MeshStandardMaterial({color:new THREE.Color().setHSL(Math.random(),0.6,0.5)}));
-body.position.y=0.8;man.add(body);
-man.position.set((Math.random()-0.5)*160,0, (Math.random()<0.5?9:-9));
-man.userData={speed:0.02+Math.random()*0.02,dir:Math.random()<0.5?1:-1,wait:0};
-scene.add(man);peoples.push(man);
+// People - penumpang & pejalan
+for(let i=0;i<18;i++){
+let p=new THREE.Group();
+let body=new THREE.Mesh(new THREE.CapsuleGeometry(0.28,0.75,4,8),new THREE.MeshStandardMaterial({color:new THREE.Color().setHSL(Math.random(),0.6,0.5)}));body.position.y=0.9;p.add(body);
+let head=new THREE.Mesh(new THREE.SphereGeometry(0.24),new THREE.MeshStandardMaterial({color:0xffdbac}));head.position.y=1.55;p.add(head);
+p.position.set((Math.random()-0.5)*300,0,(Math.random()<0.5?12.8:-12.8));
+p.userData={speed:0.018+Math.random()*0.02,dir:Math.random()<0.5?1:-1,wait:0};
+scene.add(p);people.push(p);
 }
 
-// Mobil player - full 3D
-car=new THREE.Group();
-carBody=new THREE.Mesh(new THREE.BoxGeometry(4,1.2,1.8), new THREE.MeshStandardMaterial({color:0xb71c1c,metalness:0.3,roughness:0.4}));
-carBody.position.y=0.9;carBody.castShadow=true;car.add(carBody);
-let roof=new THREE.Mesh(new THREE.BoxGeometry(2.2,0.9,1.6), new THREE.MeshStandardMaterial({color:0x111111}));roof.position.set(-0.3,1.8,0);roof.castShadow=true;car.add(roof);
-// kaca
-let glass=new THREE.Mesh(new THREE.BoxGeometry(2,0.7,1.5), new THREE.MeshStandardMaterial({color:0x88ccff,transparent:true,opacity:0.4}));glass.position.set(-0.3,1.8,0);car.add(glass);
-// roda
-let wheelGeo=new THREE.CylinderGeometry(0.5,0.5,0.4,16);let wheelMat=new THREE.MeshStandardMaterial({color:0x111111});
-for(let pos of [[1.2,0.4,0.9],[1.2,0.4,-0.9],[-1.2,0.4,0.9],[-1.2,0.4,-0.9]]){
-let w=new THREE.Mesh(wheelGeo,wheelMat);w.rotation.z=Math.PI/2;w.position.set(...pos);w.castShadow=true;car.add(w);wheels.push(w);
+// BUS - HD REAL - merah putih kayak foto
+busGroup=new THREE.Group();
+let mainBody=new THREE.Mesh(new THREE.BoxGeometry(12,3,2.6),new THREE.MeshStandardMaterial({color:0xffffff,roughness:0.4,metalness:0.2}));mainBody.position.y=1.9;mainBody.castShadow=true;busGroup.add(mainBody);
+let redStripe=new THREE.Mesh(new THREE.BoxGeometry(12,0.9,2.62),new THREE.MeshStandardMaterial({color:0xb91c1c}));redStripe.position.set(0,1.4,0);busGroup.add(redStripe);
+let grayStripe=new THREE.Mesh(new THREE.BoxGeometry(12,0.4,2.64),new THREE.MeshStandardMaterial({color:0x374151}));grayStripe.position.set(0,0.9,0);busGroup.add(grayStripe);
+let roofBus=new THREE.Mesh(new THREE.BoxGeometry(11.5,0.6,2.4),new THREE.MeshStandardMaterial({color:0xdc2626}));roofBus.position.set(0,3.7,0);roofBus.castShadow=true;busGroup.add(roofBus);
+for(let i=-5;i<=5;i+=1.1){
+let win=new THREE.Mesh(new THREE.PlaneGeometry(0.9,1.2),new THREE.MeshStandardMaterial({color:0x0f172a,metalness:0.8,roughness:0.2}));win.position.set(i,2.3,1.31);win.rotation.y=0;busGroup.add(win);
+let win2=win.clone();win2.position.z=-1.31;win2.rotation.y=Math.PI;busGroup.add(win2);
 }
-// setir di dalam mobil - real
-steeringMesh=new THREE.Mesh(new THREE.TorusGeometry(0.35,0.05,8,20), new THREE.MeshStandardMaterial({color:0x111111}));
-steeringMesh.position.set(0.6,1.3,0.4);steeringMesh.rotation.x=Math.PI/2;steeringMesh.rotation.y=0.2;car.add(steeringMesh);
-scene.add(car);
-car.position.set(-80,0,0);
-
+let frontGlass=new THREE.Mesh(new THREE.PlaneGeometry(2.2,2),new THREE.MeshStandardMaterial({color:0x0f172a,transparent:true,opacity:0.9}));frontGlass.position.set(6.01,2.2,0);frontGlass.rotation.y=Math.PI/2;busGroup.add(frontGlass);
+let rearGlass=frontGlass.clone();rearGlass.position.x=-6.01;rearGlass.rotation.y=-Math.PI/2;busGroup.add(rearGlass);
+// spion
+let mirrorL=new THREE.Mesh(new THREE.BoxGeometry(0.3,0.5,0.2),new THREE.MeshStandardMaterial({color:0x111111}));mirrorL.position.set(5.8,2,1.5);busGroup.add(mirrorL);
+let mirrorR=mirrorL.clone();mirrorR.position.z=-1.5;busGroup.add(mirrorR);
+// roda bus besar
+let wheelGeo=new THREE.CylinderGeometry(0.7,0.7,0.6,20);let tireMat=new THREE.MeshStandardMaterial({color:0x0a0a0a});
+for(let pos of [[3.5,0.7,1.2],[3.5,0.7,-1.2],[-2.5,0.7,1.2],[-2.5,0.7,-1.2]]){
+let w=new THREE.Mesh(wheelGeo,tireMat);w.rotation.z=Math.PI/2;w.position.set(...pos);w.castShadow=true;busGroup.add(w);wheels.push(w);
+}
+scene.add(busGroup);
+busGroup.position.set(-150,0,0);
 animate();
 }
 
-function updateLights(){
+function updateLights(dt){
 trafficLights.forEach(tl=>{
-tl.timer+=0.016;
-if(tl.state==='green'&&tl.timer>8){tl.state='yellow';tl.timer=0;tl.green.material.emissive.set(0x000000);tl.yellow.material.emissive.set(0xffff00);tl.yellow.material.color.set(0xffff00);}
-else if(tl.state==='yellow'&&tl.timer>2){tl.state='red';tl.timer=0;tl.yellow.material.emissive.set(0x000000);tl.yellow.material.color.set(0x333300);tl.red.material.emissive.set(0xff0000);tl.red.material.color.set(0xff0000);}
-else if(tl.state==='red'&&tl.timer>6){tl.state='green';tl.timer=0;tl.red.material.emissive.set(0x000000);tl.red.material.color.set(0x330000);tl.green.material.emissive.set(0x00ff00);tl.green.material.color.set(0x003300);}
-let dist=Math.abs(car.position.x-tl.x);
-if(dist<6&&tl.state==='red'){canGo=false;document.getElementById('lightInfo').style.display='block';document.getElementById('lightChip').textContent='🚦 MERAH - STOP!';document.getElementById('lightChip').style.background='#ff1744';}
-else if(dist<6&&tl.state==='yellow'){canGo=true;document.getElementById('lightChip').textContent='🚦 KUNING - HATI2';document.getElementById('lightChip').style.background='#ff9100';}
-else if(dist>10){document.getElementById('lightInfo').style.display='none';if(trafficLights.every(l=>l.state!=='red'||Math.abs(car.position.x-l.x)>6)){canGo=true;document.getElementById('lightChip').textContent='🚦 HIJAU - GAS!';document.getElementById('lightChip').style.background='#22c55e';}}
+tl.timer+=dt;
+if(tl.state==='green'&&tl.timer>10){tl.state='yellow';tl.timer=0;tl.gMat.emissive.set(0x000000);tl.yMat.emissive.set(0xffff00);tl.yMat.color.set(0xffff00);}
+else if(tl.state==='yellow'&&tl.timer>3){tl.state='red';tl.timer=0;tl.yMat.emissive.set(0x000000);tl.yMat.color.set(0x333300);tl.redMat.emissive.set(0xff0000);tl.redMat.color.set(0xff0000);}
+else if(tl.state==='red'&&tl.timer>7){tl.state='green';tl.timer=0;tl.redMat.emissive.set(0x000000);tl.redMat.color.set(0x330000);tl.gMat.emissive.set(0x00ff00);tl.gMat.color.set(0x003300);}
+let dist=Math.abs(busGroup.position.x-tl.x);
+let pill=document.getElementById('lightPill'),alertBox=document.getElementById('alert');
+if(dist<9&&tl.state==='red'){canGo=false;pill.textContent='🚦 MERAH - STOP BUS!';pill.className='pill red';alertBox.style.display='block';alertBox.textContent='🚦 LAMPU MERAH - STOP BUS! DENDA Rp 15.000 KALAU NEROBOS!';}
+else if(dist<9&&tl.state==='yellow'){pill.textContent='🚦 KUNING - SIAP2!';pill.className='pill yellow';}
+else if(dist>14){if(trafficLights.every(l=>l.state!=='red'||Math.abs(busGroup.position.x-l.x)>9)){canGo=true;pill.textContent='🚦 HIJAU - GAS BUS!';pill.className='pill green';alertBox.style.display='none';}}
 });
 }
-
-function updatePeople(){
-peoples.forEach(p=>{
-if(!canGo&&Math.abs(car.position.x-p.position.x)<8){p.userData.wait=2;return;}
-if(p.userData.wait>0){p.userData.wait-=0.016;return;}
+function updatePeople(dt){
+people.forEach(p=>{
+if(!canGo&&Math.abs(busGroup.position.x-p.position.x)<12){p.userData.wait=2;return;}
+if(p.userData.wait>0){p.userData.wait-=dt;return;}
 p.position.z+=p.userData.dir*p.userData.speed;
-if(Math.abs(p.position.z)>13){p.userData.dir*=-1;}
-if(Math.abs(car.position.x-p.position.x)<3&&Math.abs(car.position.z-p.position.z)<2){
-// tabrak orang
-money-=5000;document.getElementById('money').textContent=money;
-p.position.x=(Math.random()-0.5)*160;
+if(Math.abs(p.position.z)>15.8){p.userData.dir*=-1;}
+if(Math.abs(busGroup.position.x-p.position.x)<6&&Math.abs(busGroup.position.z-p.position.z)<2){
+if(p.position.z>10){pax=Math.min(40,pax+1);money+=5000;document.getElementById('pax').textContent=pax+'/40';document.getElementById('money').textContent=money;p.position.x=(Math.random()-0.5)*400;}
 }
 });
 }
 
-let gasPressed=false,brakePressed=false,steerInput=0;
-document.getElementById('gas').addEventListener('touchstart',e=>{e.preventDefault();gasPressed=true;keys.gas=true;});
-document.getElementById('gas').addEventListener('touchend',()=>{gasPressed=false;keys.gas=false;});
-document.getElementById('gas').addEventListener('mousedown',()=>{gasPressed=true;});
-window.addEventListener('mouseup',()=>{gasPressed=false;brakePressed=false;});
-document.getElementById('brake').addEventListener('touchstart',e=>{e.preventDefault();brakePressed=true;});
-document.getElementById('brake').addEventListener('touchend',()=>{brakePressed=false;});
-document.getElementById('brake').addEventListener('mousedown',()=>{brakePressed=true;});
-
-// Setir real - putar
-let steeringEl=document.getElementById('steeringWheel'), steerAngle=0, steerDragging=false, startAngle=0;
-steeringEl.addEventListener('touchstart',e=>{
-steerDragging=true;
-let t=e.touches[0];let r=steeringEl.getBoundingClientRect();let cx=r.left+r.width/2,cy=r.top+r.height/2;
-startAngle=Math.atan2(t.clientY-cy,t.clientX-cx)-steerAngle;
-e.preventDefault();
-});
-steeringEl.addEventListener('touchmove',e=>{
-if(!steerDragging)return;
-let t=e.touches[0];let r=steeringEl.getBoundingClientRect();let cx=r.left+r.width/2,cy=r.top+r.height/2;
-let ang=Math.atan2(t.clientY-cy,t.clientX-cx);
-steerAngle=ang-startAngle;
-steerAngle=Math.max(-Math.PI*1.2,Math.min(Math.PI*1.2,steerAngle));
-steeringEl.style.transform=`rotate(${steerAngle}rad)`;
-steerInput=steerAngle/(Math.PI*1.2);
-e.preventDefault();
-});
-steeringEl.addEventListener('touchend',()=>{steerDragging=false;});
-steeringEl.addEventListener('mousedown',e=>{
-steerDragging=true;
-let r=steeringEl.getBoundingClientRect();let cx=r.left+r.width/2,cy=r.top+r.height/2;
-startAngle=Math.atan2(e.clientY-cy,e.clientX-cx)-steerAngle;
-});
+// Steering
+let wheelEl=document.getElementById('steerReal');
+wheelEl.addEventListener('touchstart',e=>{
+steerDragging=true;let t=e.touches[0],r=wheelEl.getBoundingClientRect(),cx=r.left+r.width/2,cy=r.top+r.height/2;startAng=Math.atan2(t.clientY-cy,t.clientX-cx)-steerAngle;e.preventDefault();});
+wheelEl.addEventListener('touchmove',e=>{
+if(!steerDragging)return;let t=e.touches[0],r=wheelEl.getBoundingClientRect(),cx=r.left+r.width/2,cy=r.top+r.height/2;let ang=Math.atan2(t.clientY-cy,t.clientX-cx);steerAngle=ang-startAng;steerAngle=Math.max(-Math.PI*1.2,Math.min(Math.PI*1.2,steerAngle));wheelEl.style.transform=`rotate(${steerAngle}rad)`;steerVal=steerAngle/(Math.PI*1.2);e.preventDefault();});
+wheelEl.addEventListener('touchend',()=>{steerDragging=false;autoReturn();});
+wheelEl.addEventListener('mousedown',e=>{steerDragging=true;let r=wheelEl.getBoundingClientRect(),cx=r.left+r.width/2,cy=r.top+r.height/2;startAng=Math.atan2(e.clientY-cy,e.clientX-cx)-steerAngle;});
 window.addEventListener('mousemove',e=>{
-if(!steerDragging)return;
-let r=steeringEl.getBoundingClientRect();let cx=r.left+r.width/2,cy=r.top+r.height/2;
-let ang=Math.atan2(e.clientY-cy,e.clientX-cx);
-steerAngle=ang-startAngle;
-steerAngle=Math.max(-Math.PI*1.2,Math.min(Math.PI*1.2,steerAngle));
-steeringEl.style.transform=`rotate(${steerAngle}rad)`;
-steerInput=steerAngle/(Math.PI*1.2);
-});
-window.addEventListener('mouseup',()=>{
-if(steerDragging){steerDragging=false;
-// balik setir pelan
-let interval=setInterval(()=>{
-steerAngle*=0.9;steeringEl.style.transform=`rotate(${steerAngle}rad)`;steerInput=steerAngle/(Math.PI*1.2);
-if(Math.abs(steerAngle)<0.02){clearInterval(interval);steerAngle=0;steerInput=0;steeringEl.style.transform=`rotate(0rad)`;}
-},16);
-}
-});
+if(!steerDragging)return;let r=wheelEl.getBoundingClientRect(),cx=r.left+r.width/2,cy=r.top+r.height/2;let ang=Math.atan2(e.clientY-cy,e.clientX-cx);steerAngle=ang-startAng;steerAngle=Math.max(-Math.PI*1.2,Math.min(Math.PI*1.2,steerAngle));wheelEl.style.transform=`rotate(${steerAngle}rad)`;steerVal=steerAngle/(Math.PI*1.2);});
+window.addEventListener('mouseup',()=>{if(steerDragging){steerDragging=false;autoReturn();}});
+function autoReturn(){let iv=setInterval(()=>{steerAngle*=0.88;wheelEl.style.transform=`rotate(${steerAngle}rad)`;steerVal=steerAngle/(Math.PI*1.2);if(Math.abs(steerAngle)<0.02){clearInterval(iv);steerAngle=0;steerVal=0;wheelEl.style.transform=`rotate(0rad)`;}},16);}
 
-document.getElementById('viewBtn').onclick=function(){
-viewInside=!viewInside;this.textContent=viewInside?'👁️ LUAR':'👁️ DALAM';
-};
+document.getElementById('gasBtn').addEventListener('touchstart',e=>{e.preventDefault();gas=true;});
+document.getElementById('gasBtn').addEventListener('touchend',()=>gas=false);
+document.getElementById('gasBtn').addEventListener('mousedown',()=>gas=true);
+document.getElementById('brakeBtn').addEventListener('touchstart',e=>{e.preventDefault();brake=true;});
+document.getElementById('brakeBtn').addEventListener('touchend',()=>brake=false);
+document.getElementById('brakeBtn').addEventListener('mousedown',()=>brake=true);
+window.addEventListener('mouseup',()=>{gas=false;brake=false;});
+document.getElementById('viewToggle').onclick=function(){inside=!inside;this.textContent=inside?'👁️ LUAR':'👁️ DALAM';document.getElementById('cockpit').style.display=inside?'flex':'none';};
 
 function animate(){
 requestAnimationFrame(animate);
-// mobil physics
-if(gasPressed&&canGo){speed=Math.min(speed+0.04,2.5);}else if(brakePressed){speed=Math.max(speed-0.08,-1);}else{speed*=0.985;}
-if(!canGo&&speed>0.3&&gasPressed){
-speed=0;money-=10000;document.getElementById('money').textContent=money;
-document.getElementById('lightInfo').textContent='🚦 TEROBOS LAMPU MERAH! DENDA Rp 10.000!';
-setTimeout(()=>document.getElementById('lightInfo').style.display='none',2000);
-}
-carAngle+=steerInput*speed*0.04;
-car.position.x+=Math.cos(carAngle)*speed;
-car.position.z+=Math.sin(carAngle)*speed*0.5;
-car.rotation.y=-carAngle;
-car.position.z=Math.max(-8,Math.min(8,car.position.z));
-// roda depan belok
-wheels[0].rotation.y=wheels[1].rotation.y=steerInput*0.6;
-// setir dalam mobil muter
-if(steeringMesh)steeringMesh.rotation.z=steerInput*1.5;
-// camera follow
+let dt=0.016;
+if(gas&&canGo){speed=Math.min(speed+0.03,1.8);}else if(brake){speed=Math.max(speed-0.07,-0.8);}else{speed*=0.986;}
+if(!canGo&&speed>0.3&&gas){speed*=0.4;money-=15000;document.getElementById('money').textContent=money;let al=document.getElementById('alert');al.textContent='🚦 TEROBOS LAMPU MERAH! DENDA Rp 15.000!';setTimeout(()=>al.style.display='none',2000);}
+angle+=steerVal*speed*0.025;
+busGroup.position.x+=Math.cos(angle)*speed;
+busGroup.position.z+=Math.sin(angle)*speed*0.4;
+busGroup.rotation.y=-angle;
+busGroup.position.z=Math.max(-5,Math.min(5,busGroup.position.z));
+wheels.forEach(w=>{w.rotation.x+=speed*0.5;});
 let camTarget=new THREE.Vector3();
-if(viewInside){
-camTarget.set(car.position.x-0.5,2.2,0.3);
-camera.position.lerp(camTarget,0.1);
-camera.lookAt(car.position.x+10*Math.cos(carAngle),1.2,car.position.z+10*Math.sin(carAngle)*0.5);
+if(inside){
+camTarget.set(busGroup.position.x+2,3.5,0.5);
+camera.position.lerp(camTarget,0.12);
+camera.lookAt(busGroup.position.x+20*Math.cos(angle),2.5,busGroup.position.z+20*Math.sin(angle)*0.4);
 }else{
-let offsetX=-12*Math.cos(carAngle),offsetZ=-12*Math.sin(carAngle)*0.5;
-camTarget.set(car.position.x+offsetX,6,car.position.z+offsetZ+2);
+let offX=-22*Math.cos(angle),offZ=-22*Math.sin(angle)*0.4;
+camTarget.set(busGroup.position.x+offX,9,busGroup.position.z+offZ+4);
 camera.position.lerp(camTarget,0.08);
-camera.lookAt(car.position);
+camera.lookAt(busGroup.position);
 }
-updateLights();
-updatePeople();
-document.getElementById('speed').textContent=Math.floor(Math.abs(speed)*60);
-if(Math.abs(car.position.x)>190){car.position.x=-180;money+=5000;document.getElementById('money').textContent=money;}
+updateLights(dt);
+updatePeople(dt);
+let kmh=Math.floor(Math.abs(speed)*50);
+document.getElementById('speed').textContent=kmh;
+document.getElementById('mSpeed').textContent=kmh;
+document.getElementById('mRpm').textContent=(0.8+Math.abs(speed)*0.6).toFixed(1);
+if(busGroup.position.x>380){busGroup.position.x=-380;money+=20000;document.getElementById('money').textContent=money;}
 renderer.render(scene,camera);
 }
-window.addEventListener('resize',()=>{camera.aspect=window.innerWidth/window.innerHeight;camera.updateProjectionMatrix();renderer.setSize(window.innerWidth,window.innerHeight);});
-
-document.getElementById('startBtn').onclick=()=>{
-document.getElementById('menu').style.display='none';
-init();
-};
-
+window.addEventListener('resize',()=>{camera.aspect=innerWidth/innerHeight;camera.updateProjectionMatrix();renderer.setSize(innerWidth,innerHeight);});
+document.getElementById('startBtn').onclick=()=>{document.getElementById('menu').style.display='none';init();};
 </script>
 </body>
-  </html>
+</html>
