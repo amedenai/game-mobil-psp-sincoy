@@ -1,0 +1,302 @@
+here<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
+<title>MOBIL SIMULATOR PSP - FULL 3D - SINCOY</title>
+<link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@700;800&display=swap" rel="stylesheet">
+<style>
+*{margin:0;padding:0;box-sizing:border-box;user-select:none;-webkit-tap-highlight-color:transparent}
+body{margin:0;background:#000;font-family:'Fredoka',system-ui;overflow:hidden;height:100dvh}
+#game{position:fixed;inset:0}
+#uiTop{position:absolute;top:0;left:0;right:0;height:50px;background:linear-gradient(#111,#000);border-bottom:3px solid #222;display:flex;gap:6px;padding:8px;z-index:10}
+.chip{flex:1;background:#111;border:2px solid #333;border-radius:100px;padding:6px;text-align:center;font-size:10px;color:#fff;display:flex;align-items:center;justify-content:center;gap:4px}
+#steeringWrap{position:absolute;bottom:10px;left:10px;width:140px;height:140px;z-index:10;pointer-events:auto}
+#steeringWheel{width:100%;height:100%;border-radius:50%;background:radial-gradient(circle at 30% 30%,#444,#111);border:5px solid #000;box-shadow:0 6px 0 #000, inset 0 2px 10px rgba(255,255,255,0.2);position:relative;touch-action:none}
+#steeringWheel::before{content:'';position:absolute;inset:18%;border-radius:50%;background:#000;border:3px solid #222}
+#steeringWheel::after{content:'';position:absolute;top:50%;left:50%;width:80%;height:8px;background:#111;border:2px solid #333;border-radius:4px;transform:translate(-50%,-50%)}
+#pedals{position:absolute;bottom:10px;right:10px;display:flex;gap:12px;z-index:10;pointer-events:auto}
+.pedal{width:80px;height:100px;background:linear-gradient(#222,#000);border:4px solid #000;border-radius:16px;display:flex;flex-direction:column;align-items:center;justify-content:center;color:#fff;font-size:11px;font-weight:800;box-shadow:0 6px 0 #000}
+.pedal:active{transform:translateY(4px);box-shadow:0 2px 0 #000}
+.pedal.gas{background:linear-gradient(#2a2,#000);border-color:#0a0}
+.pedal.rem{background:linear-gradient(#a22,#000);border-color:#a00}
+#lightInfo{position:absolute;top:60px;left:50%;transform:translateX(-50%);background:#000;border:3px solid #fff;border-radius:12px;padding:6px 14px;color:#fff;font-size:12px;z-index:10;display:none}
+#menu{position:fixed;inset:0;z-index:100;background:radial-gradient(ellipse at 50% 0%,#1a2a4a,#000);display:flex;align-items:center;justify-content:center;padding:16px}
+.card{background:#fff;color:#000;border:5px solid #000;border-radius:20px;padding:20px;width:100%;max-width:420px;text-align:center;box-shadow:14px 14px 0 #000}
+</style>
+<script type="importmap">
+{
+"imports":{
+"three":"https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js",
+"three/addons/":"https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/"
+}
+}
+</script>
+</head>
+<body>
+<div id="game"></div>
+<div id="uiTop">
+<div class="chip">🏎️ <span id="speed">0</span> KM/H</div>
+<div class="chip" id="lightChip">🚦 HIJAU</div>
+<div class="chip">💰 Rp <span id="money">0</span></div>
+<div class="chip" id="viewBtn">👁️ DALAM</div>
+</div>
+<div id="lightInfo">🚦 LAMPU MERAH - BERHENTI!</div>
+<div id="steeringWrap"><div id="steeringWheel"></div><div style="text-align:center;font-size:9px;color:#fff;margin-top:4px">SETIR REAL - PUTAR!</div></div>
+<div id="pedals">
+<div class="pedal rem" id="brake">🛑<br>REM</div>
+<div class="pedal gas" id="gas">⛽<br>GAS</div>
+</div>
+
+<div id="menu">
+<div class="card">
+<div style="font-size:40px">🏎️🚦🦄</div>
+<h2>PSP MOBIL SIMULATOR<br><span style="background:#b71c1c;color:#fff;padding:2px 8px;border-radius:8px;font-size:12px">FULL 3D - LENGKAP</span></h2>
+<div style="text-align:left;font-size:11px;margin:10px 0;line-height:1.6">
+✅ <b>Full 3D HD:</b> Jalan aspal, gedung, pagar besi, trotoar, bayangan real!<br>
+✅ <b>Lampu merah:</b> 3 perempatan - merah kuning hijau - kalau nerobos didenda!<br>
+✅ <b>Orang nyebrang:</b> pejalan kaki di zebra cross - berhenti kalau merah!<br>
+✅ <b>Setir mobil real:</b> setir bulat bisa diputar 900° + setir di dalam mobil muter juga!<br>
+✅ <b>Kontrol PSP:</b> setir kiri, gas kanan, rem, ganti view dalam/luar
+</div>
+<button style="width:100%;padding:14px;background:#ffeb3b;border:4px solid #000;border-radius:100px;font-weight:800;box-shadow:0 5px 0 #000" id="startBtn">🏎️ START MESIN SINCOY!</button>
+</div>
+</div>
+
+<script type="module">
+import * as THREE from 'three';
+
+let scene,camera,renderer,car,carBody,wheels=[],steeringMesh,road,buildings=[],trafficLights=[],peoples=[],fences=[];
+let speed=0,steer=0,carAngle=0,viewInside=false,money=0;
+let lightState='green',lightTimer=0,canGo=true;
+let keys={gas:false,brake:false};
+
+function init(){
+scene=new THREE.Scene();
+scene.background=new THREE.Color(0x87CEEB);
+scene.fog=new THREE.Fog(0x87CEEB, 80, 300);
+
+camera=new THREE.PerspectiveCamera(70, window.innerWidth/window.innerHeight, 0.1, 1000);
+camera.position.set(0,8,18);
+
+renderer=new THREE.WebGLRenderer({antialias:true});
+renderer.setSize(window.innerWidth, window.innerHeight);
+renderer.shadowMap.enabled=true;
+renderer.shadowMap.type=THREE.PCFSoftShadowMap;
+document.getElementById('game').appendChild(renderer.domElement);
+
+let light=new THREE.DirectionalLight(0xffffff,1.2);
+light.position.set(50,80,30);
+light.castShadow=true;
+light.shadow.mapSize.set(2048,2048);
+scene.add(light);
+scene.add(new THREE.AmbientLight(0xffffff,0.5));
+
+// Road
+let roadGeo=new THREE.PlaneGeometry(400,20);
+let roadMat=new THREE.MeshStandardMaterial({color:0x2a2a2a,roughness:0.9});
+road=new THREE.Mesh(roadGeo,roadMat);
+road.rotation.x=-Math.PI/2;
+road.receiveShadow=true;
+scene.add(road);
+// garis tengah
+for(let i=-200;i<200;i+=10){
+let line=new THREE.Mesh(new THREE.PlaneGeometry(3,0.5), new THREE.MeshStandardMaterial({color:0xffffff}));
+line.rotation.x=-Math.PI/2;line.position.set(i,0.02,0);scene.add(line);
+}
+// trotoar
+let sideGeo=new THREE.PlaneGeometry(400,6);
+let sideMat=new THREE.MeshStandardMaterial({color:0x888888});
+let leftSide=new THREE.Mesh(sideGeo,sideMat);leftSide.rotation.x=-Math.PI/2;leftSide.position.set(0,0.01,10);scene.add(leftSide);
+let rightSide=leftSide.clone();rightSide.position.z=-10;scene.add(rightSide);
+
+// Pagar besi - kiri kanan
+for(let i=-200;i<200;i+=8){
+let fence=new THREE.Mesh(new THREE.BoxGeometry(0.3,2,0.2), new THREE.MeshStandardMaterial({color:0x555555}));
+fence.position.set(i,1,13);fence.castShadow=true;scene.add(fence);fences.push(fence);
+let fence2=fence.clone();fence2.position.z=-13;scene.add(fence2);
+let rail=new THREE.Mesh(new THREE.BoxGeometry(8,0.15,0.15), new THREE.MeshStandardMaterial({color:0x777777}));
+rail.position.set(i,1.5,13);scene.add(rail);
+let rail2=rail.clone();rail2.position.z=-13;scene.add(rail2);
+}
+
+// Gedung
+for(let i=-180;i<180;i+=18){
+let h=10+Math.random()*20;
+let b=new THREE.Mesh(new THREE.BoxGeometry(8,h,8), new THREE.MeshStandardMaterial({color:new THREE.Color().setHSL(Math.random()*0.1+0.1,0.3,0.5)}));
+b.position.set(i, h/2, 22+Math.random()*5);b.castShadow=true;scene.add(b);buildings.push(b);
+let b2=b.clone();b2.position.z=-22-Math.random()*5;scene.add(b2);
+}
+
+// Lampu merah - 3 perempatan
+for(let x of [-60,0,60]){
+let pole=new THREE.Mesh(new THREE.CylinderGeometry(0.15,0.15,8), new THREE.MeshStandardMaterial({color:0x222222}));
+pole.position.set(x,4,-6);pole.castShadow=true;scene.add(pole);
+let box=new THREE.Mesh(new THREE.BoxGeometry(1.5,3,0.6), new THREE.MeshStandardMaterial({color:0x111111}));
+box.position.set(x,7,-6);scene.add(box);
+let red=new THREE.Mesh(new THREE.SphereGeometry(0.3), new THREE.MeshStandardMaterial({color:0x330000,emissive:0x000000}));red.position.set(x,8,-5.6);scene.add(red);
+let yellow=new THREE.Mesh(new THREE.SphereGeometry(0.3), new THREE.MeshStandardMaterial({color:0x333300,emissive:0x000000}));yellow.position.set(x,7,-5.6);scene.add(yellow);
+let green=new THREE.Mesh(new THREE.SphereGeometry(0.3), new THREE.MeshStandardMaterial({color:0x003300,emissive:0x00ff00}));green.position.set(x,6,-5.6);scene.add(green);
+trafficLights.push({x:x,red: red,yellow:yellow,green:green,state:'green',timer:0});
+}
+
+// Orang nyebrang
+for(let i=0;i<12;i++){
+let man=new THREE.Group();
+let body=new THREE.Mesh(new THREE.CapsuleGeometry(0.3,0.8,4,8), new THREE.MeshStandardMaterial({color:new THREE.Color().setHSL(Math.random(),0.6,0.5)}));
+body.position.y=0.8;man.add(body);
+man.position.set((Math.random()-0.5)*160,0, (Math.random()<0.5?9:-9));
+man.userData={speed:0.02+Math.random()*0.02,dir:Math.random()<0.5?1:-1,wait:0};
+scene.add(man);peoples.push(man);
+}
+
+// Mobil player - full 3D
+car=new THREE.Group();
+carBody=new THREE.Mesh(new THREE.BoxGeometry(4,1.2,1.8), new THREE.MeshStandardMaterial({color:0xb71c1c,metalness:0.3,roughness:0.4}));
+carBody.position.y=0.9;carBody.castShadow=true;car.add(carBody);
+let roof=new THREE.Mesh(new THREE.BoxGeometry(2.2,0.9,1.6), new THREE.MeshStandardMaterial({color:0x111111}));roof.position.set(-0.3,1.8,0);roof.castShadow=true;car.add(roof);
+// kaca
+let glass=new THREE.Mesh(new THREE.BoxGeometry(2,0.7,1.5), new THREE.MeshStandardMaterial({color:0x88ccff,transparent:true,opacity:0.4}));glass.position.set(-0.3,1.8,0);car.add(glass);
+// roda
+let wheelGeo=new THREE.CylinderGeometry(0.5,0.5,0.4,16);let wheelMat=new THREE.MeshStandardMaterial({color:0x111111});
+for(let pos of [[1.2,0.4,0.9],[1.2,0.4,-0.9],[-1.2,0.4,0.9],[-1.2,0.4,-0.9]]){
+let w=new THREE.Mesh(wheelGeo,wheelMat);w.rotation.z=Math.PI/2;w.position.set(...pos);w.castShadow=true;car.add(w);wheels.push(w);
+}
+// setir di dalam mobil - real
+steeringMesh=new THREE.Mesh(new THREE.TorusGeometry(0.35,0.05,8,20), new THREE.MeshStandardMaterial({color:0x111111}));
+steeringMesh.position.set(0.6,1.3,0.4);steeringMesh.rotation.x=Math.PI/2;steeringMesh.rotation.y=0.2;car.add(steeringMesh);
+scene.add(car);
+car.position.set(-80,0,0);
+
+animate();
+}
+
+function updateLights(){
+trafficLights.forEach(tl=>{
+tl.timer+=0.016;
+if(tl.state==='green'&&tl.timer>8){tl.state='yellow';tl.timer=0;tl.green.material.emissive.set(0x000000);tl.yellow.material.emissive.set(0xffff00);tl.yellow.material.color.set(0xffff00);}
+else if(tl.state==='yellow'&&tl.timer>2){tl.state='red';tl.timer=0;tl.yellow.material.emissive.set(0x000000);tl.yellow.material.color.set(0x333300);tl.red.material.emissive.set(0xff0000);tl.red.material.color.set(0xff0000);}
+else if(tl.state==='red'&&tl.timer>6){tl.state='green';tl.timer=0;tl.red.material.emissive.set(0x000000);tl.red.material.color.set(0x330000);tl.green.material.emissive.set(0x00ff00);tl.green.material.color.set(0x003300);}
+let dist=Math.abs(car.position.x-tl.x);
+if(dist<6&&tl.state==='red'){canGo=false;document.getElementById('lightInfo').style.display='block';document.getElementById('lightChip').textContent='🚦 MERAH - STOP!';document.getElementById('lightChip').style.background='#ff1744';}
+else if(dist<6&&tl.state==='yellow'){canGo=true;document.getElementById('lightChip').textContent='🚦 KUNING - HATI2';document.getElementById('lightChip').style.background='#ff9100';}
+else if(dist>10){document.getElementById('lightInfo').style.display='none';if(trafficLights.every(l=>l.state!=='red'||Math.abs(car.position.x-l.x)>6)){canGo=true;document.getElementById('lightChip').textContent='🚦 HIJAU - GAS!';document.getElementById('lightChip').style.background='#22c55e';}}
+});
+}
+
+function updatePeople(){
+peoples.forEach(p=>{
+if(!canGo&&Math.abs(car.position.x-p.position.x)<8){p.userData.wait=2;return;}
+if(p.userData.wait>0){p.userData.wait-=0.016;return;}
+p.position.z+=p.userData.dir*p.userData.speed;
+if(Math.abs(p.position.z)>13){p.userData.dir*=-1;}
+if(Math.abs(car.position.x-p.position.x)<3&&Math.abs(car.position.z-p.position.z)<2){
+// tabrak orang
+money-=5000;document.getElementById('money').textContent=money;
+p.position.x=(Math.random()-0.5)*160;
+}
+});
+}
+
+let gasPressed=false,brakePressed=false,steerInput=0;
+document.getElementById('gas').addEventListener('touchstart',e=>{e.preventDefault();gasPressed=true;keys.gas=true;});
+document.getElementById('gas').addEventListener('touchend',()=>{gasPressed=false;keys.gas=false;});
+document.getElementById('gas').addEventListener('mousedown',()=>{gasPressed=true;});
+window.addEventListener('mouseup',()=>{gasPressed=false;brakePressed=false;});
+document.getElementById('brake').addEventListener('touchstart',e=>{e.preventDefault();brakePressed=true;});
+document.getElementById('brake').addEventListener('touchend',()=>{brakePressed=false;});
+document.getElementById('brake').addEventListener('mousedown',()=>{brakePressed=true;});
+
+// Setir real - putar
+let steeringEl=document.getElementById('steeringWheel'), steerAngle=0, steerDragging=false, startAngle=0;
+steeringEl.addEventListener('touchstart',e=>{
+steerDragging=true;
+let t=e.touches[0];let r=steeringEl.getBoundingClientRect();let cx=r.left+r.width/2,cy=r.top+r.height/2;
+startAngle=Math.atan2(t.clientY-cy,t.clientX-cx)-steerAngle;
+e.preventDefault();
+});
+steeringEl.addEventListener('touchmove',e=>{
+if(!steerDragging)return;
+let t=e.touches[0];let r=steeringEl.getBoundingClientRect();let cx=r.left+r.width/2,cy=r.top+r.height/2;
+let ang=Math.atan2(t.clientY-cy,t.clientX-cx);
+steerAngle=ang-startAngle;
+steerAngle=Math.max(-Math.PI*1.2,Math.min(Math.PI*1.2,steerAngle));
+steeringEl.style.transform=`rotate(${steerAngle}rad)`;
+steerInput=steerAngle/(Math.PI*1.2);
+e.preventDefault();
+});
+steeringEl.addEventListener('touchend',()=>{steerDragging=false;});
+steeringEl.addEventListener('mousedown',e=>{
+steerDragging=true;
+let r=steeringEl.getBoundingClientRect();let cx=r.left+r.width/2,cy=r.top+r.height/2;
+startAngle=Math.atan2(e.clientY-cy,e.clientX-cx)-steerAngle;
+});
+window.addEventListener('mousemove',e=>{
+if(!steerDragging)return;
+let r=steeringEl.getBoundingClientRect();let cx=r.left+r.width/2,cy=r.top+r.height/2;
+let ang=Math.atan2(e.clientY-cy,e.clientX-cx);
+steerAngle=ang-startAngle;
+steerAngle=Math.max(-Math.PI*1.2,Math.min(Math.PI*1.2,steerAngle));
+steeringEl.style.transform=`rotate(${steerAngle}rad)`;
+steerInput=steerAngle/(Math.PI*1.2);
+});
+window.addEventListener('mouseup',()=>{
+if(steerDragging){steerDragging=false;
+// balik setir pelan
+let interval=setInterval(()=>{
+steerAngle*=0.9;steeringEl.style.transform=`rotate(${steerAngle}rad)`;steerInput=steerAngle/(Math.PI*1.2);
+if(Math.abs(steerAngle)<0.02){clearInterval(interval);steerAngle=0;steerInput=0;steeringEl.style.transform=`rotate(0rad)`;}
+},16);
+}
+});
+
+document.getElementById('viewBtn').onclick=function(){
+viewInside=!viewInside;this.textContent=viewInside?'👁️ LUAR':'👁️ DALAM';
+};
+
+function animate(){
+requestAnimationFrame(animate);
+// mobil physics
+if(gasPressed&&canGo){speed=Math.min(speed+0.04,2.5);}else if(brakePressed){speed=Math.max(speed-0.08,-1);}else{speed*=0.985;}
+if(!canGo&&speed>0.3&&gasPressed){
+speed=0;money-=10000;document.getElementById('money').textContent=money;
+document.getElementById('lightInfo').textContent='🚦 TEROBOS LAMPU MERAH! DENDA Rp 10.000!';
+setTimeout(()=>document.getElementById('lightInfo').style.display='none',2000);
+}
+carAngle+=steerInput*speed*0.04;
+car.position.x+=Math.cos(carAngle)*speed;
+car.position.z+=Math.sin(carAngle)*speed*0.5;
+car.rotation.y=-carAngle;
+car.position.z=Math.max(-8,Math.min(8,car.position.z));
+// roda depan belok
+wheels[0].rotation.y=wheels[1].rotation.y=steerInput*0.6;
+// setir dalam mobil muter
+if(steeringMesh)steeringMesh.rotation.z=steerInput*1.5;
+// camera follow
+let camTarget=new THREE.Vector3();
+if(viewInside){
+camTarget.set(car.position.x-0.5,2.2,0.3);
+camera.position.lerp(camTarget,0.1);
+camera.lookAt(car.position.x+10*Math.cos(carAngle),1.2,car.position.z+10*Math.sin(carAngle)*0.5);
+}else{
+let offsetX=-12*Math.cos(carAngle),offsetZ=-12*Math.sin(carAngle)*0.5;
+camTarget.set(car.position.x+offsetX,6,car.position.z+offsetZ+2);
+camera.position.lerp(camTarget,0.08);
+camera.lookAt(car.position);
+}
+updateLights();
+updatePeople();
+document.getElementById('speed').textContent=Math.floor(Math.abs(speed)*60);
+if(Math.abs(car.position.x)>190){car.position.x=-180;money+=5000;document.getElementById('money').textContent=money;}
+renderer.render(scene,camera);
+}
+window.addEventListener('resize',()=>{camera.aspect=window.innerWidth/window.innerHeight;camera.updateProjectionMatrix();renderer.setSize(window.innerWidth,window.innerHeight);});
+
+document.getElementById('startBtn').onclick=()=>{
+document.getElementById('menu').style.display='none';
+init();
+};
+
+</script>
+</body>
+  </html>
